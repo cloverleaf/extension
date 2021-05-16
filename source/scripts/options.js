@@ -23,7 +23,17 @@ function restoreOptions () {
   getting.then(setCurrentChoice, onError)
 }
 
+function togglePassword() {
+  var x = document.getElementById("password");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+}
+
 document.querySelector('#password').addEventListener('change', saveOptions)
+document.getElementById('password-toggle').addEventListener('change', togglePassword)
 document.querySelector('#presets-only').addEventListener('change', saveOptions)
 document.addEventListener('DOMContentLoaded', restoreOptions)
 // document.querySelector('form').addEventListener('submit', saveOptions)
