@@ -9,7 +9,7 @@
     "128": "assets/icons/favicon-128.png"
   },
 
-  "description": "Sample description",
+  "description": "Cloverleaf but as an extension",
   "homepage_url": "https://github.com/cloverleaf/extension",
   "short_name": "Cloverleaf",
 
@@ -65,6 +65,7 @@
   },
 
   "content_scripts": [{
+    "run_at":"document_start",
     "matches": [
       "http://*/*",
       "https://*/*"

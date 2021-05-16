@@ -6,19 +6,41 @@ import '../../node_modules/@materializecss/materialize/js/global.js'
 import '../../node_modules/@materializecss/materialize/js/anime.min.js'
 import '../../node_modules/@materializecss/materialize/js/toasts.js'
 
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.unsupportedSite) {
-    const url = new URL(message.unsupportedSite)
+browser.runtime.onMessage.addListener((response, sender, sendResponse) => {
+  switch (response.message) {
+    case 'unsupportedSite':
+      window.M.toast({
+        html: response.url + " isn't supported yet",
+        classes: 'warning'
+      })
+      break
 
-    window.M.toast({
-      html: `${url.hostname} isn't supported yet`,
-      classes: 'warning'
-    })
-  } else if (message.copied) {
-    window.M.toast({ text: 'Used preset ' + message.copied, classes: 'success' })
-  } else if (message.generated) {
-    window.M.toast({ text: 'Generated a password for ' + message.generated, classes: 'success' })
-  } else if (message.error) {
-    window.M.toast({ text: 'Error generating password for ' + message.error, classes: 'warning' })
+    case 'copied':
+      window.M.toast({
+        text: 'Used preset ' + response.alias,
+        classes: 'success'
+      })
+      break
+
+    case 'generated':
+      window.M.toast({
+        text: 'Generated a password for ' + response.url,
+        classes: 'middling'
+      })
+      break
+
+    case 'error':
+      window.M.toast({
+        text: 'Error generating password for ' + response.url,
+        classes: 'warning'
+      })
+      break
+
+    default:
+      window.M.toast({
+        text: 'Please report this',
+        classes: 'warning'
+      })
+      break
   }
 })

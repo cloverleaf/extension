@@ -1,0 +1,19 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: esbuild
+      run: |
+        yarn install
+        yarn run build
+
+    # Upload builds
+    - uses: actions/upload-artifact@v2
+      with:
+        path: extension/*

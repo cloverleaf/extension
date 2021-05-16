@@ -31,6 +31,7 @@ async function tabCompletion (tab) {
           }
         },
         5000)
+
       function onUpdated (tabId, changeInfo, updatedTab) {
         // Must use updatedTab below; using just `tab` seems to remain
         // stuck to about:blank.
@@ -46,17 +47,19 @@ async function tabCompletion (tab) {
 }
 
 // Show a toast saying what's been done
-function toast (tab, URL) {
+function toast (tab, passthrough) {
+  const url = passthrough.url
+
   // If clicked on a not website page, don't show a unsupported site toast
-  if (URL.protocol !== 'https:' && URL.protocol !== 'http:') return
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return
 
   // TODO: Easter egg or something
   // If on cloverleaf already, do nothing
-  if (URL.href === cloverleafURL) return
+  if (url.href === cloverleafURL) return
 
   // Wait until the tab is loaded
   tabCompletion(tab).then(function () {
-    browser.tabs.sendMessage(tab.id, { unsupportedSite: URL })
+    browser.tabs.sendMessage(tab.id, passthrough)
   })
 }
 
@@ -68,12 +71,22 @@ function goToURL (targetURL, passthrough) {
       // If cloverleaf's already open
       if (tab.url === targetURL) {
         // Switch to it
-        browser.tabs.update(tab.id, { active: true }).then((updated) => toast(updated, passthrough))
+        browser.tabs.update(tab.id, {
+          active: true
+        }).then((updated) => {
+          toast(updated, passthrough)
+          // Also make sure its window is focused
+          browser.windows.update(tab.windowId, {
+            focused: true
+          })
+        })
         return
       }
     }
     // Only done if no existing tab found
-    browser.tabs.create({ url: targetURL }).then((made) => toast(made, passthrough))
+    browser.tabs.create({
+      url: targetURL
+    }).then((made) => toast(made, passthrough))
   })
 }
 
@@ -85,39 +98,92 @@ browser.browserAction.onClicked.addListener((tab) => {
     const tab = tabs[0]
     const url = new URL(tab.url)
 
+    // If clicked on a not website page, open cloverleaf
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+      goToURL(cloverleafURL, {
+        message: 'nonSite',
+        url: url
+      })
+      return
+    }
+
     const getting = browser.storage.sync.get(['password', 'presetsOnly'])
     getting.then((response) => {
       const pass = response.password
 
-      let alias
+      // If no password is set
+      if (!pass) {
+        // Display modal alerting the user
+        if (window.confirm('You need to set a password before using this')) {
+          // Open the options page
+          browser.runtime.openOptionsPage()
+          return
+        }
+      }
+
+      let alias = ''
+      const split = url.hostname.split('.')
+      const secondLevel = split.slice(split.length - 2).join('.')
 
       // Try hostnames
       if (url.hostname in data.hostnames) {
         alias = data.hostnames[url.hostname]
+      } else if (secondLevel in data.secondLevel) {
+        // Try second-level
+        alias = data.secondLevel[secondLevel]
+      }
 
+      if (alias !== '') {
         try {
           const out = cloverleaf.process(alias, pass, true)
           copy(out)
-          browser.tabs.sendMessage(tab.id, { copied: alias })
-        } catch (Error) {
-          browser.tabs.sendMessage(tab.id, { error: 'preset: ' + url.hostname })
+          browser.tabs.sendMessage(tab.id, {
+            message: 'copied',
+            alias: alias,
+            url: url
+          })
+        } catch (e) {
+          console.error(e)
+          browser.tabs.sendMessage(tab.id, {
+            message: 'error',
+            url: url
+          })
         }
       } else {
         // If no support for that site
 
+        // If the user only wants to use existing presets
         if (response.presetsOnly) {
           // Go to a cloverleaf tab or open one
-          goToURL(cloverleafURL, url)
+          goToURL(cloverleafURL, {
+            message: 'unsupportedSite',
+            url: url
+          })
         } else {
           try {
             const out = cloverleaf.process(url.hostname, pass, false)
             copy(out)
-            browser.tabs.sendMessage(tab.id, { generated: url.hostname })
-          } catch (Error) {
-            browser.tabs.sendMessage(tab.id, { error: 'site: ' + url.hostname })
+            browser.tabs.sendMessage(tab.id, {
+              message: 'generated',
+              url: url
+            })
+          } catch (e) {
+            console.error(e)
+            browser.tabs.sendMessage(tab.id, {
+              message: 'error',
+              url: url
+            })
           }
         }
       }
     })
   })
+})
+
+// On install or update
+browser.runtime.onInstalled.addListener(function (details) {
+  if (details.reason === 'install') {
+    // Open the options page
+    browser.runtime.openOptionsPage()
+  }
 })
