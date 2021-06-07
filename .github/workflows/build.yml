@@ -2,13 +2,13 @@ name: Build
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: esbuild
+    - name: Build
       run: |
         yarn install
         yarn run build
