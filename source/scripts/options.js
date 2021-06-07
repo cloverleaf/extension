@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-// import '../styles/options.scss'
+import '../styles/options.scss'
 
 function saveOptions (e) {
   e.preventDefault()

@@ -1,6 +1,16 @@
 @import "base/reset";
 
 body {
-  color: $black;
-  background-color: $greyWhite;
+  color: #fff;
+  background-color: #292a2d;
+  padding: 0.5em 1em;
+}
+
+h1 {
+  font-size: large;
+  font-weight: 500;
+}
+
+#password {
+  margin-bottom: .5em;
 }

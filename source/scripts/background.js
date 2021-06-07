@@ -114,11 +114,10 @@ browser.browserAction.onClicked.addListener((tab) => {
       // If no password is set
       if (!pass) {
         // Display modal alerting the user
-        if (window.confirm('You need to set a password before using this')) {
-          // Open the options page
-          browser.runtime.openOptionsPage()
-          return
-        }
+        browser.tabs.sendMessage(tab.id, {
+          message: 'passwordNeeded'
+        })
+        return
       }
 
       let alias = ''
@@ -184,6 +183,12 @@ browser.browserAction.onClicked.addListener((tab) => {
 browser.runtime.onInstalled.addListener(function (details) {
   if (details.reason === 'install') {
     // Open the options page
+    browser.runtime.openOptionsPage()
+  }
+})
+
+browser.runtime.onMessage.addListener(function (request, sender) {
+  if (request.message === 'openOptions') {
     browser.runtime.openOptionsPage()
   }
 })

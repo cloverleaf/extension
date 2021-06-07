@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Cloverleaf",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "icons": {
     "16": "assets/icons/favicon-16.png",
     "32": "assets/icons/favicon-32.png",
@@ -31,7 +31,7 @@
 
   "__firefox__applications": {
     "gecko": {
-      "id": "{754FB1AD-CC3B-4856-B6A0-7786F8CA9D17}"
+      "id": ""
     }
   },
 
@@ -53,8 +53,8 @@
   "__chrome|opera__options_page": "options.html",
   "options_ui": {
     "page": "options.html",
-    "open_in_tab": true,
-    "__chrome__chrome_style": false
+    "open_in_tab": false,
+    "browser_style": true
   },
 
   "background": {
