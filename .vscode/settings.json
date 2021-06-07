@@ -1,4 +1,7 @@
 {
 	"javascript.validate.enable":false,
-	"standard.enable": true
+	"standard.enable": true,
+	"conventionalCommits.scopes": [
+		"sites"
+	]
 }
