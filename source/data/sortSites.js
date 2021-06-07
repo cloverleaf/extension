@@ -2,9 +2,7 @@ const fs = require('fs')
 
 const path = 'source/data/siteUrls.json'
 
-
 function weirdSort (toSort) {
-
   const temp = {}
 
   // Make arrays of hostnames with single key per site
@@ -62,14 +60,12 @@ function weirdSort (toSort) {
   return final
 }
 
-
-
 fs.readFile(path, (err, result) => {
   if (err) throw err
 
   const json = JSON.parse(result)
 
-  let out = {}
+  const out = {}
   out.hostnames = weirdSort(json.hostnames)
   out.secondLevel = weirdSort(json.secondLevel)
   out.WIP = json.WIP

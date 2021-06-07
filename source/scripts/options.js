@@ -16,19 +16,19 @@ function restoreOptions () {
   }
 
   function onError (error) {
-    console.log(`Error: ${error}`)
+    console.error(`Error: ${error}`)
   }
 
   const getting = browser.storage.sync.get(['password', 'presetsOnly'])
   getting.then(setCurrentChoice, onError)
 }
 
-function togglePassword() {
-  var x = document.getElementById("password");
-  if (x.type === "password") {
-    x.type = "text";
+function togglePassword () {
+  const x = document.getElementById('password')
+  if (x.type === 'password') {
+    x.type = 'text'
   } else {
-    x.type = "password";
+    x.type = 'password'
   }
 }
 
